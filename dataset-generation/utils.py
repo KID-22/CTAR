@@ -97,7 +97,8 @@ def get_r_rating(r_rating: pd.DataFrame,
         logit_intersection = -len(movie_id) / 2 * logit_slope
         p = np.array(range(len(movie_id), 0, -1)) * \
             logit_slope+logit_intersection
-        p = 1 / (1 + np.exp(-p)).reshape((1, len(movie_id))) * 2 * missing_rate
+        p = 1 / (1 + np.exp(-p))
+        P = (p / p.mean() * missing_rate).reshape((1, len(movie_id)))
         r_rating.loc[:, :] = np.random.binomial(1,
                                                 p,
                                                 size=(len(user_id),
