@@ -74,7 +74,8 @@ This dataset contains the observed tags that users labeled to movies. In this pr
 This dataset is constructed from a random experiment. The users and the movies labeled by users are randomly selected. Also, users are forced to label all the tags they like for a particular movie. That is, if “-1” appears, you may still assume that the user does not like any tag of the movie. Besides, for tags of a movie that do not appear in this dataset for a user-movie pair, we are sure that the user does not like those tags.
 
 ### Intended Use and Future Research Tasks
-Besides the tasks of predicting the rating of a user-movie pair or estimating a user's preference to a particular tag, e.g., PCIC2021 Competitions Track2 (https://competition.huaweicloud.com/information/1000041488/introduction), the released CTAR dataset allows various other research directions, some of which are listed below:
+Besides the tasks of predicting the rating of a user-movie pair or estimating a user's preference to a particular tag, e.g., [PCIC2021 Competitions Track2](https://competition.huaweicloud.com/information/1000041488/introduction) , the released CTAR dataset allows various other research directions, some of which are listed below:
+
 + Debiasing in recommender systems  
 The CTAR dataset is generated using causal graphical model that simulates common biases and missingness mechanisms to make it as close to practical scenarios as possible.  All the counterfactuals in CTAR are available and can be used for evaluating novel causality-based debiasing methods.
 + Explainable recommendations  
