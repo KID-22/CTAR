@@ -22,6 +22,5 @@ python generate_data.py \
 --obstag_non_missing_rate 0.6 \
 --need_trainset 1 \
 --need_testset 1 \
---validation_percentage 0.3 \
 --rerank_id 1
 echo "end"

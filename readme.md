@@ -1,10 +1,8 @@
 ## CTAR Dataset and Generation Codes
 
-This repository contains Causal Tags and Ratings (CTAR) dataset and code for its generation.
+This repository contains Causal Tags and Ratings (CTAR) dataset and generation codes.
 
-If you have any problems, please feel free to contact us.
-
-Please cite our paper if this dataset helps your research.
+If you have any questions, please feel free to contact us.
 
 ### Overview
 
@@ -43,10 +41,10 @@ We have set default hyperparameters in the dataset generation implementation. So
 [--missing_rate_obstag MISSING_RATE_OBSTAG] Missing rate of ObsTag
 [--missing_type_obstag MISSING_TYPE_OBSTAG] Missing type of ObsTag
 [--quality_sigma QUALITY_SIGMA] Standard deviation of normal distribution for quality
-[--test_identifiable_num TEST_IDENTIFIABLE_NUM] Number of test Subset II
-[--test_identifiable_num_positive TEST_IDENTIFIABLE_NUM_POSITIVE] Number of positive samples in test Subset II
-[--test_inidentifiable_num TEST_INIDENTIFIABLE_NUM] Number of test Subset III
-[--test_inidentifiable_positive TEST_INIDENTIFIABLE_POSITIVE] Number of positive samples in test Subset III
+[--test_identifiable_num TEST_IDENTIFIABLE_NUM] Number of Test Dataset II
+[--test_identifiable_num_positive TEST_IDENTIFIABLE_NUM_POSITIVE] Number of positive samples in Test Dataset II
+[--test_inidentifiable_num TEST_INIDENTIFIABLE_NUM] Number of Test Dataset III
+[--test_inidentifiable_positive TEST_INIDENTIFIABLE_POSITIVE] Number of positive samples in Test Dataset III
 [--obstag_non_missing_rate OBSTAG_NON_MISSING_RATE] Probability of no missing in ObsTag
 [--need_trainset NEED_TRAINSET] Whether need to generate train set
 [--need_testset NEED_TESTSET] Whether need to generate test set
@@ -76,7 +74,7 @@ This dataset contains the observed tags that users labeled to movies. In this pr
 This dataset is constructed from a random experiment. The users and the movies labeled by users are randomly selected. Also, users are forced to label all the tags they like for a particular movie. That is, if “-1” appears, you may still assume that the user does not like any tag of the movie. Besides, for tags of a movie that do not appear in this dataset for a user-movie pair, we are sure that the user does not like those tags.
 
 ### Intended Use and Future Research Tasks
-Besides the tasks of predicting the rating of a user-movie pair or estimating a user's preference to a particular tag,e.g.,PCIC2021 Competitions Track2(https://competition.huaweicloud.com/information/1000041488/introduction), the released CTAR dataset allows various other research directions, some of which are listed below:
+Besides the tasks of predicting the rating of a user-movie pair or estimating a user's preference to a particular tag, e.g., PCIC2021 Competitions Track2 (https://competition.huaweicloud.com/information/1000041488/introduction), the released CTAR dataset allows various other research directions, some of which are listed below:
 + Debiasing in recommender systems  
 The CTAR dataset is generated using causal graphical model that simulates common biases and missingness mechanisms to make it as close to practical scenarios as possible.  All the counterfactuals in CTAR are available and can be used for evaluating novel causality-based debiasing methods.
 + Explainable recommendations  
@@ -91,6 +89,4 @@ You can see more details in our paper and support material.
 ### Citation
 
 If you reference or use our methodology, code or results in your work, please consider citing:
-
-### References
 
