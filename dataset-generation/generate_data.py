@@ -8,6 +8,7 @@ from utils import *
 np.random.seed(9527)
 random.seed(9527)
 
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -37,7 +38,6 @@ def main():
     parser.add_argument('--obstag_non_missing_rate', type=float, default=0.6)
     parser.add_argument('--need_trainset', type=int, default=0)
     parser.add_argument('--need_testset', type=int, default=0)
-    parser.add_argument('--validation_percentage', type=float, default=0.3)
     parser.add_argument('--rerank_id', type=int, default=1)
 
 
@@ -47,28 +47,30 @@ def main():
     data_dir = './'
     if not os.path.exists(data_dir + 'generate_data/'):
         os.makedirs(data_dir + 'generate_data/')
-    for i in ['train','valid','test']:
+    for i in ['train', 'test']:
         if not os.path.exists(data_dir + 'final_data/before_rerank_id/' + i):
-            os.makedirs(data_dir + 'final_data/before_rerank_id/' + i) 
+            os.makedirs(data_dir + 'final_data/before_rerank_id/' + i)
         if not os.path.exists(data_dir + 'final_data/rerank_id/' + i):
-            os.makedirs(data_dir + 'final_data/rerank_id/' + i) 
+            os.makedirs(data_dir + 'final_data/rerank_id/' + i)
 
     big_movie_tag_ct = pd.read_csv(data_dir + 'original_data/movie_tag_ct.csv')
-    big_user_movie_rating = pd.read_csv(data_dir + 'original_data/movie_rating.csv')
+    base_movie_rating = pd.read_csv(data_dir + 'original_data/movie_rating.csv', index_col='movieid')
+
 
     print('======generating base data======')
 
     # generate user_id data
     if os.path.exists(data_dir + 'generate_data/user_id.csv'):
         user_id = np.array(
-            pd.read_csv(data_dir + 'generate_data/user_id.csv', index_col='userid').index)
+            pd.read_csv(data_dir + 'generate_data/user_id.csv',
+                        index_col='userid').index)
         max_user_num = len(user_id)
     else:
         max_user_num = paras['max_user_num']
         user_id = np.array(range(max_user_num))
         pd.DataFrame(data=user_id,
-                     columns=['userid']).set_index('userid').to_csv(data_dir + 
-                         'generate_data/user_id.csv', header=True)
+                     columns=['userid']).set_index('userid').to_csv(
+                         data_dir + 'generate_data/user_id.csv', header=True)
 
     # generate movie_id data
     mv_tag_count: pd.DataFrame = big_movie_tag_ct[[
@@ -97,9 +99,11 @@ def main():
 
     # generate movie_real_tag_list data
     if os.path.exists(data_dir + 'generate_data/movie_real_tag_list.csv'):
-        movie_real_tag_list = pd.read_csv(data_dir + 
-            'generate_data/movie_real_tag_list.csv', index_col='movieid')
-        movie_real_tag_list['taglist'] = movie_real_tag_list['taglist'].apply(eval)
+        movie_real_tag_list = pd.read_csv(
+            data_dir + 'generate_data/movie_real_tag_list.csv',
+            index_col='movieid')
+        movie_real_tag_list['taglist'] = movie_real_tag_list['taglist'].apply(
+            eval)
         # print(movie_real_tag_list.head())
     else:
         movie_real_tag_list = pd.DataFrame()
@@ -119,13 +123,15 @@ def main():
         movie_real_tag_list['movieid'] = movie_real_tag_list['movieid'].astype(
             'int64')
         movie_real_tag_list = movie_real_tag_list.set_index('movieid')
-        movie_real_tag_list.to_csv(data_dir + 'generate_data/movie_real_tag_list.csv',
+        movie_real_tag_list.to_csv(data_dir +
+                                   'generate_data/movie_real_tag_list.csv',
                                    header=True)
 
     # generate user_like_tag_list data
     if os.path.exists(data_dir + 'generate_data/user_like_tag_list.csv'):
-        user_like_tag_list = pd.read_csv(data_dir + 
-            'generate_data/user_like_tag_list.csv', index_col='userid')
+        user_like_tag_list = pd.read_csv(
+            data_dir + 'generate_data/user_like_tag_list.csv',
+            index_col='userid')
         user_like_tag_list['user_like_tag'] = user_like_tag_list[
             'user_like_tag'].apply(eval)
         # print(user_like_tag_list.head())
@@ -140,19 +146,20 @@ def main():
         user_like_tag_list: pd.DataFrame = generate_user_like_tag(
             user_id, user_tag_count, obstag_count,
             rct_distribution)  # 生成每个用户喜欢的标签
-        user_like_tag_list.to_csv(data_dir + 'generate_data/user_like_tag_list.csv',
+        user_like_tag_list.to_csv(data_dir +
+                                  'generate_data/user_like_tag_list.csv',
                                   header=True)
 
     # generate Real_RCTtag
     if os.path.exists(data_dir + 'generate_data/real_rcttag.csv'):
         real_rcttag = pd.read_csv(data_dir + 'generate_data/real_rcttag.csv',
-                                      index_col='userid')
+                                  index_col='userid')
         real_rcttag.columns = map(eval, real_rcttag.columns)
         real_rcttag = real_rcttag.applymap(eval)
         # print(real_rcttag.head())
     else:
         real_rcttag: pd.DataFrame = pd.DataFrame(index=user_id,
-                                                     columns=movie_id)
+                                                 columns=movie_id)
         real_rcttag.index.name = 'userid'
         for uid, mid in [(x, y) for x in user_id for y in movie_id]:
             mv_tag = movie_real_tag_list.loc[mid, 'taglist']
@@ -160,28 +167,27 @@ def main():
             real_rcttag.loc[uid, mid] = list(
                 set(mv_tag).intersection(set(user_tag)))
         real_rcttag.to_csv(data_dir + 'generate_data/real_rcttag.csv',
-                               header=True)
+                           header=True)
 
     # generate Quality data
     if os.path.exists(data_dir + 'generate_data/quality.csv'):
-        quality = pd.read_csv(data_dir + 'generate_data/quality.csv', index_col='movieid')
+        quality = pd.read_csv(data_dir + 'generate_data/quality.csv',
+                              index_col='movieid')
         # print(quality.head())
     else:
         quality_sigma = paras['quality_sigma']
-        base_rating: pd.DataFrame = big_user_movie_rating[[
-            'movieid', 'rating'
-        ]].groupby('movieid').mean()
         quality: pd.DataFrame = pd.DataFrame(index=movie_id,
                                              columns=['quality'])
         quality.index.name = 'movieid'
-        quality['quality'] = base_rating.loc[movie_id] + \
+        quality['quality'] = base_movie_rating.loc[movie_id] + \
             np.random.normal(loc=0, scale=quality_sigma,
                              size=len(movie_id)).reshape(-1, 1)
         quality.to_csv(data_dir + 'generate_data/quality.csv', header=True)
 
     # generate Rating data
     if os.path.exists(data_dir + 'generate_data/rating.csv'):
-        rating = pd.read_csv(data_dir + 'generate_data/rating.csv', index_col='userid')
+        rating = pd.read_csv(data_dir + 'generate_data/rating.csv',
+                             index_col='userid')
         rating.columns = map(eval, rating.columns)
         # print(rating.head())
     else:
@@ -201,7 +207,8 @@ def main():
 
     # generate Recsys
     if os.path.exists(data_dir + 'generate_data/recsys.csv'):
-        recsys = pd.read_csv(data_dir + 'generate_data/recsys.csv', index_col='userid')
+        recsys = pd.read_csv(data_dir + 'generate_data/recsys.csv',
+                             index_col='userid')
         recsys.columns = map(eval, recsys.columns)
         # print(recsys.head())
     else:
@@ -215,18 +222,16 @@ def main():
     # generate R_RCTTag
     if os.path.exists(data_dir + 'generate_data/r_rcttag.csv'):
         r_rcttag = pd.read_csv(data_dir + 'generate_data/r_rcttag.csv',
-                                   index_col='userid')
+                               index_col='userid')
         r_rcttag.columns = map(eval, r_rcttag.columns)
     else:
         rcttag_user_num = paras['rcttag_user_num']
         rcttag_movie_num = paras['rcttag_movie_num']
         r_rcttag: pd.DataFrame = pd.DataFrame(data=0,
-                                                  index=user_id,
-                                                  columns=movie_id)
+                                              index=user_id,
+                                              columns=movie_id)
         r_rcttag.index.name = 'userid'
-        u_list = np.random.choice(user_id,
-                                  size=rcttag_user_num,
-                                  replace=False)
+        u_list = np.random.choice(user_id, size=rcttag_user_num, replace=False)
         for uid in u_list:
             m_list = np.random.choice(movie_id,
                                       size=rcttag_movie_num,
@@ -278,9 +283,10 @@ def main():
         # output movie data
         movie_data['taglist'] = movie_real_tag_list['taglist'].map(
             lambda xx: ','.join([str(x) for x in xx]))
-        movie_data[['taglist']].to_csv(data_dir + 'final_data/before_rerank_id/train/movie.csv',
-                                     header=True,
-                                     index=True)
+        movie_data[['taglist']].to_csv(
+            data_dir + 'final_data/before_rerank_id/train/movie.csv',
+            header=True,
+            index=True)
         # movie_data = pd.read_csv(data_dir + 'final_data/train/movie.csv')
         # print(movie_data.head())
 
@@ -351,16 +357,23 @@ def main():
                             },
                             ignore_index=True)
                         nonmissingcount += 1
+        rating_out['userid'] = rating_out['userid'].astype('int64')
         rating_out['movieid'] = rating_out['movieid'].astype('int64')
-        rating_out.to_csv(data_dir + 'final_data/before_rerank_id/train/rating.csv',
+        rating_out['rating'] = rating_out['rating'].astype('int64')
+        rating_out.to_csv(data_dir +
+                          'final_data/before_rerank_id/train/rating.csv',
                           header=True,
                           index=False)
+        rcttag_out['userid'] = rcttag_out['userid'].astype('int64')
         rcttag_out['movieid'] = rcttag_out['movieid'].astype('int64')
-        rcttag_out.to_csv(data_dir + 'final_data/before_rerank_id/train/rcttag.csv',
+        rcttag_out.to_csv(data_dir +
+                          'final_data/before_rerank_id/train/rcttag.csv',
                           header=True,
                           index=False)
+        obstag_out['userid'] = obstag_out['userid'].astype('int64')
         obstag_out['movieid'] = obstag_out['movieid'].astype('int64')
-        obstag_out.to_csv(data_dir + 'final_data/before_rerank_id/train/obstag.csv',
+        obstag_out.to_csv(data_dir +
+                          'final_data/before_rerank_id/train/obstag.csv',
                           header=True,
                           index=False)
         obstag_missing['movieid'] = obstag_missing['movieid'].astype('int64')
@@ -375,43 +388,39 @@ def main():
     print('======generating test set======')
     # generate test set
     need_testset = paras['need_testset']
-    validation_percentage = paras['validation_percentage']
     if need_testset == 1:
         test_identifiable_num = paras['test_identifiable_num']
-        test_identifiable_num_positive = paras['test_identifiable_num_positive']
+        test_identifiable_num_positive = paras[
+            'test_identifiable_num_positive']
         test_inidentifiable_num = paras['test_inidentifiable_num']
         test_inidentifiable_positive = paras['test_inidentifiable_positive']
         test_set: pd.DataFrame = pd.DataFrame(
             columns=['userid', 'tagid', 'islike'])
-        validation_set: pd.DataFrame = pd.DataFrame(
-            columns=['userid', 'tagid', 'islike'])
 
         if not os.path.exists(data_dir + 'generate_data/extract.csv'):
             os.system('python extract_data.py')
-        extract_pd: pd.DataFrame = pd.read_csv(data_dir + 'generate_data/extract.csv')
+        extract_pd: pd.DataFrame = pd.read_csv(data_dir +
+                                               'generate_data/extract.csv')
         extract_dict = dict(
             zip(zip(extract_pd['userid'], extract_pd['tagid']),
                 extract_pd['islike']))
 
-
         # generating obstag missing data
-        obstag_missing: pd.DataFrame = pd.read_csv(data_dir + 
-            'generate_data/obstag_missing.csv')[['userid', 'tagid']]
+        obstag_missing: pd.DataFrame = pd.read_csv(
+            data_dir + 'generate_data/obstag_missing.csv')[['userid', 'tagid']]
         obstag_missing['islike'] = 1
         obstag_missing_dict = dict(
             zip(zip(obstag_missing['userid'], obstag_missing['tagid']),
                 obstag_missing['islike']))
-        val_1, test_1 = split_test_val(
-            obstag_missing,
-            len(obstag_missing) * validation_percentage)
-
-        validation_set = validation_set.append(val_1, ignore_index=True)
+        
+        test_1 = obstag_missing
         test_set = test_set.append(test_1, ignore_index=True)
 
         # generating identifiable data
         positive_count = 0
         negtive_count = 0
-        rating_out = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/rating.csv')
+        rating_out = pd.read_csv(
+            data_dir + 'final_data/before_rerank_id/train/rating.csv')
         tmp_pos = pd.DataFrame(columns=['userid', 'tagid', 'islike'])
         tmp_neg = pd.DataFrame(columns=['userid', 'tagid', 'islike'])
         for i in range(test_identifiable_num):
@@ -448,14 +457,9 @@ def main():
                             negtive_count += 1
                             break
 
-        val_2_pos, test_2_pos = split_test_val(
-            tmp_pos, test_identifiable_num_positive * validation_percentage)
-        val_2, test_2 = split_test_val(
-            tmp_neg, (test_identifiable_num - test_identifiable_num_positive) *
-            validation_percentage)
-        val_2 = val_2.append(val_2_pos, ignore_index=True)
+        test_2_pos = tmp_pos
+        test_2 = tmp_neg
         test_2 = test_2.append(test_2_pos, ignore_index=True)
-        validation_set = validation_set.append(val_2, ignore_index=True)
         test_set = test_set.append(test_2, ignore_index=True)
 
         # generating inidentifiable data
@@ -502,31 +506,29 @@ def main():
                             find_tag = True
                             negtive_count += 1
                             break
-        val_3_pos, test_3_pos = split_test_val(
-            tmp_pos, test_inidentifiable_positive * validation_percentage)
-        val_3, test_3 = split_test_val(
-            tmp_neg, (test_inidentifiable_num - test_inidentifiable_positive) *
-            validation_percentage)
-        val_3 = val_3.append(val_3_pos, ignore_index=True)
+        test_3_pos = tmp_pos
+        test_3 = tmp_neg
         test_3 = test_3.append(test_3_pos, ignore_index=True)
-        validation_set = validation_set.append(val_3, ignore_index=True)
         test_set = test_set.append(test_3, ignore_index=True)
 
-        test_set.to_csv(data_dir + 'final_data/before_rerank_id/test/test.csv', header=True, index=False)
-        test_1.to_csv(data_dir + 'final_data/before_rerank_id/test/test_1.csv', header=True, index=False)
-        test_2.to_csv(data_dir + 'final_data/before_rerank_id/test/test_2.csv', header=True, index=False)
-        test_3.to_csv(data_dir + 'final_data/before_rerank_id/test/test_3.csv', header=True, index=False)
-        validation_set.to_csv(data_dir + 'final_data/before_rerank_id/valid/validation.csv',
-                              header=True,
-                              index=False)
-        val_1.to_csv(data_dir + 'final_data/before_rerank_id/valid/val_1.csv', header=True, index=False)
-        val_2.to_csv(data_dir + 'final_data/before_rerank_id/valid/val_2.csv', header=True, index=False)
-        val_3.to_csv(data_dir + 'final_data/before_rerank_id/valid/val_3.csv', header=True, index=False)
+        test_set.to_csv(data_dir + 'final_data/before_rerank_id/test/test.csv',
+                        header=True,
+                        index=False)
+        test_1.to_csv(data_dir + 'final_data/before_rerank_id/test/test_1.csv',
+                      header=True,
+                      index=False)
+        test_2.to_csv(data_dir + 'final_data/before_rerank_id/test/test_2.csv',
+                      header=True,
+                      index=False)
+        test_3.to_csv(data_dir + 'final_data/before_rerank_id/test/test_3.csv',
+                      header=True,
+                      index=False)
 
     # rerank movieid and tagid
     rerank_id = paras['rerank_id']
     if rerank_id == 1:
-        movie_df = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/movie.csv')
+        movie_df = pd.read_csv(data_dir +
+                               'final_data/before_rerank_id/train/movie.csv')
         # print(movie_df.head())
         movie_dict = {}
         tag_dict = {}
@@ -549,14 +551,16 @@ def main():
                         header=True,
                         index=False)
 
-        rating_df = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/rating.csv')
+        rating_df = pd.read_csv(data_dir +
+                                'final_data/before_rerank_id/train/rating.csv')
         rating_df['movieid'] = rating_df['movieid'].apply(
             lambda x: movie_dict[x])
         rating_df.to_csv(data_dir + 'final_data/rerank_id/train/rating.csv',
                          header=True,
                          index=False)
 
-        obstag_df = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/obstag.csv')
+        obstag_df = pd.read_csv(data_dir +
+                                'final_data/before_rerank_id/train/obstag.csv')
         obstag_df['movieid'] = obstag_df['movieid'].apply(
             lambda x: movie_dict[x])
         obstag_df['tagid'] = obstag_df['tagid'].apply(lambda x: tag_dict[x])
@@ -564,24 +568,23 @@ def main():
                          header=True,
                          index=False)
 
-        rcttag_df = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/rcttag.csv')
+        rcttag_df = pd.read_csv(data_dir +
+                                'final_data/before_rerank_id/train/rcttag.csv')
         rcttag_df['movieid'] = rcttag_df['movieid'].apply(
             lambda x: movie_dict[x])
-        rcttag_df['tagid'] = rcttag_df['tagid'].apply(
-            lambda x: tag_dict[x])
+        rcttag_df['tagid'] = rcttag_df['tagid'].apply(lambda x: tag_dict[x])
         rcttag_df.to_csv(data_dir + 'final_data/rerank_id/train/rcttag.csv',
-                            header=True,
-                            index=False)
+                         header=True,
+                         index=False)
 
-        rerankid_test_data('final_data/before_rerank_id/valid/', 'validation.csv', tag_dict, 'final_data/rerank_id/valid/')
-        rerankid_test_data('final_data/before_rerank_id/valid/', 'val_1.csv', tag_dict, 'final_data/rerank_id/valid/')
-        rerankid_test_data('final_data/before_rerank_id/valid/', 'val_2.csv', tag_dict, 'final_data/rerank_id/valid/')
-        rerankid_test_data('final_data/before_rerank_id/valid/', 'val_3.csv', tag_dict, 'final_data/rerank_id/valid/')
-
-        rerankid_test_data('final_data/before_rerank_id/test/', 'test.csv', tag_dict, 'final_data/rerank_id/test/')
-        rerankid_test_data('final_data/before_rerank_id/test/', 'test_1.csv', tag_dict, 'final_data/rerank_id/test/')
-        rerankid_test_data('final_data/before_rerank_id/test/', 'test_2.csv', tag_dict, 'final_data/rerank_id/test/')
-        rerankid_test_data('final_data/before_rerank_id/test/', 'test_3.csv', tag_dict, 'final_data/rerank_id/test/')
+        rerankid_test_data('final_data/before_rerank_id/test/', 'test.csv',
+                           tag_dict, 'final_data/rerank_id/test/')
+        rerankid_test_data('final_data/before_rerank_id/test/', 'test_1.csv',
+                           tag_dict, 'final_data/rerank_id/test/')
+        rerankid_test_data('final_data/before_rerank_id/test/', 'test_2.csv',
+                           tag_dict, 'final_data/rerank_id/test/')
+        rerankid_test_data('final_data/before_rerank_id/test/', 'test_3.csv',
+                           tag_dict, 'final_data/rerank_id/test/')
 
     print('======Done!======')
 

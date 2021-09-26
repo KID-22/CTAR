@@ -57,13 +57,13 @@ There are four datasets for training: Movie, Rating, ObsTag and RCTTag. The summ
 |            | Filename       | Size  | Records | Data in each record   |
 | :--------- | :------------- | :---- | :------ | :-------------------- |
 | train      | movie.csv      | 34KB  | 1,000   | movieid,taglist       |
-|            | rating.csv     | 192KB | 20,128  | userid,movieid,rating |
-|            | obstag.csv     | 95KB  | 9,196   | userid,movieid,tagid  |
-|            | rcttag.csv     | 16KB  | 1,529   | userid,movieid,tagid  |
-| test       | test\_1\.csv   | 13KB  | 1,528   | userid,tagid,islike   |
-|            | test\_2\.csv   | 46KB  | 5,000   | userid,tagid,islike   |
+|            | rating.csv     | 190KB | 19,897  | userid,movieid,rating |
+|            | obstag.csv     | 99KB  | 9,619   | userid,movieid,tagid  |
+|            | rcttag.csv     | 16KB  | 1,489   | userid,movieid,tagid  |
+| test       | test\_1\.csv   | 14KB  | 1,561   | userid,tagid,islike   |
+|            | test\_2\.csv   | 47KB  | 5,000   | userid,tagid,islike   |
 |            | test\_3\.csv   | 38KB  | 4,000   | userid,tagid,islike   |
-|            | test.csv       | 97KB  | 10,528  | userid,tagid,islike   |
+|            | test.csv       | 98KB  | 10,561  | userid,tagid,islike   |
 + Movie:
 This dataset contains the basic information. The field “taglist” contains the 8 tags for each movie. We assume that any tags in other datasets will appear in this file.
 + Rating:

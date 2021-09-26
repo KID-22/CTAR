@@ -6,11 +6,11 @@ import sys
 data_dir = './'
 
 print("------extracting deterministic data------")
-bigtag = pd.read_csv(data_dir + 'final_data/train/bigtag.csv')
-choicetag = pd.read_csv(data_dir + 'final_data/train/choicetag.csv')
+obstag = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/obstag.csv')
+rcttag = pd.read_csv(data_dir + 'final_data/before_rerank_id/train/rcttag.csv')
 movie_real_tag_list = pd.read_csv(data_dir + 
     'generate_data/movie_real_tag_list.csv', index_col='movieid')
-movie_real_tag_list['tagid'] = movie_real_tag_list['tagid'].apply(eval)
+movie_real_tag_list['taglist'] = movie_real_tag_list['taglist'].apply(eval)
 
 
 movie_tag_dict = {}
@@ -18,23 +18,23 @@ user_tag_dict = {}
 
 extract_data = pd.DataFrame(columns=['userid', 'tagid', 'islike'])
 
-for i in choicetag.index:
-    uid = choicetag.loc[i]['userid']
-    mid = choicetag.loc[i]['movieid']
-    tag = choicetag.loc[i]['tagid']
-    mtag_list = movie_real_tag_list.loc[mid]['tagid']
+for i in rcttag.index:
+    uid = rcttag.loc[i]['userid']
+    mid = rcttag.loc[i]['movieid']
+    tag = rcttag.loc[i]['tagid']
+    mtag_list = movie_real_tag_list.loc[mid]['taglist']
     for mtag in mtag_list:
         if not (uid, mtag) in user_tag_dict:
             user_tag_dict[(uid, mtag)] = 0
     if not tag == -1:
         user_tag_dict[(uid, tag)] = 1
 
-for i in bigtag.index:
-    uid = bigtag.loc[i]['userid']
-    mid = bigtag.loc[i]['movieid']
-    tag = bigtag.loc[i]['tagid']
+for i in obstag.index:
+    uid = obstag.loc[i]['userid']
+    mid = obstag.loc[i]['movieid']
+    tag = obstag.loc[i]['tagid']
     if tag == -1:
-        mtag_list = movie_real_tag_list.loc[mid]['tagid']
+        mtag_list = movie_real_tag_list.loc[mid]['taglist']
         for mtag in mtag_list:
             if not (uid, mtag) in user_tag_dict:
                 user_tag_dict[(uid, mtag)] = 0

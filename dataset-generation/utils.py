@@ -98,7 +98,7 @@ def get_r_rating(r_rating: pd.DataFrame,
         p = np.array(range(len(movie_id), 0, -1)) * \
             logit_slope+logit_intersection
         p = 1 / (1 + np.exp(-p))
-        P = (p / p.mean() * missing_rate).reshape((1, len(movie_id)))
+        p = (p / p.mean() * missing_rate).reshape((1, len(movie_id)))
         r_rating.loc[:, :] = np.random.binomial(1,
                                                 p,
                                                 size=(len(user_id),
@@ -147,7 +147,7 @@ def check_test_set(test_set: pd.DataFrame, user_like_tag_list: pd.DataFrame):
     for i in test_set.index:
         uid = test_set.loc[i]['userid']
         tag = test_set.loc[i]['tagid']
-        like = test_set.loc[i]['like']
+        like = test_set.loc[i]['islike']
         userlike = user_like_tag_list.loc[uid]['user_like_tag']
         if tag in userlike and like == 0:
             wrongnum += 1
@@ -159,5 +159,6 @@ def check_test_set(test_set: pd.DataFrame, user_like_tag_list: pd.DataFrame):
 def rerankid_test_data(filepath, filename, tag_dict, savepath):
     test_df = pd.read_csv(filepath + filename)
     test_df['tagid'] = test_df['tagid'].apply(lambda x: tag_dict[x])
+    test_df = test_df.sort_values(['userid','tagid','islike'])
     test_df.to_csv(savepath + filename , header=True, index=False)
 
