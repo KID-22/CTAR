@@ -40,7 +40,6 @@ def main():
     parser.add_argument('--need_testset', type=int, default=0)
     parser.add_argument('--rerank_id', type=int, default=1)
 
-
     args = parser.parse_args()
     paras = vars(args)
 
@@ -54,8 +53,9 @@ def main():
             os.makedirs(data_dir + 'final_data/rerank_id/' + i)
 
     big_movie_tag_ct = pd.read_csv(data_dir + 'original_data/movie_tag_ct.csv')
-    base_movie_rating = pd.read_csv(data_dir + 'original_data/movie_rating.csv', index_col='movieid')
-
+    base_movie_rating = pd.read_csv(data_dir +
+                                    'original_data/movie_rating.csv',
+                                    index_col='movieid')
 
     print('======generating base data======')
 
@@ -95,7 +95,8 @@ def main():
                 ascending=False).to_frame()  # 统计选出来的电影集合里，以标签为单位，每个标签的总数量
     rct_distribution = obstag_count['tagCount'] / \
         obstag_count['tagCount'].sum()  # 生成标签流行度的分布
-    obstag_count.to_csv(data_dir + 'generate_data/obstag_count.csv', header=True)
+    obstag_count.to_csv(data_dir + 'generate_data/obstag_count.csv',
+                        header=True)
 
     # generate movie_real_tag_list data
     if os.path.exists(data_dir + 'generate_data/movie_real_tag_list.csv'):
@@ -412,7 +413,7 @@ def main():
         obstag_missing_dict = dict(
             zip(zip(obstag_missing['userid'], obstag_missing['tagid']),
                 obstag_missing['islike']))
-        
+
         test_1 = obstag_missing
         test_set = test_set.append(test_1, ignore_index=True)
 
@@ -461,6 +462,8 @@ def main():
         test_2 = tmp_neg
         test_2 = test_2.append(test_2_pos, ignore_index=True)
         test_set = test_set.append(test_2, ignore_index=True)
+        test_2_dict = dict(
+            zip(zip(test_2['userid'], test_2['tagid']), test_2['islike']))
 
         # generating inidentifiable data
         positive_count = 0
@@ -481,7 +484,10 @@ def main():
                 if r_rating.loc[uid, mid] == 1:
                     continue
                 for tmptag in movie_real_tag_list.loc[mid]['taglist']:
-                    if not (uid, tmptag) in rating_ut_dict:
+                    if not ((uid, tmptag) in rating_ut_dict or
+                            (uid, tmptag) in obstag_missing_dict or
+                            (uid, tmptag) in extract_dict or
+                            (uid, tmptag) in test_2_dict):
                         if tmptag in user_like_tag_list.loc[uid][
                                 'user_like_tag'] and positive_count < test_inidentifiable_positive:
                             tmp_pos = tmp_pos.append(

@@ -159,6 +159,6 @@ def check_test_set(test_set: pd.DataFrame, user_like_tag_list: pd.DataFrame):
 def rerankid_test_data(filepath, filename, tag_dict, savepath):
     test_df = pd.read_csv(filepath + filename)
     test_df['tagid'] = test_df['tagid'].apply(lambda x: tag_dict[x])
-    test_df = test_df.sort_values(['userid','tagid','islike'])
+    test_df = test_df.sort_values(['userid','tagid','islike']).drop_duplicates(keep='first')
     test_df.to_csv(savepath + filename , header=True, index=False)
 
