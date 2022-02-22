@@ -89,14 +89,19 @@ def main():
                                   columns=['movieid']).set_index('movieid')
         movie_data.to_csv(data_dir + 'generate_data/movie_id.csv', header=True)
 
-    obstag_count: pd.DataFrame = big_movie_tag_ct[
-        big_movie_tag_ct['movieid'].isin(movie_id)].groupby(
-            'tagid')['tagCount'].sum().sort_values(
-                ascending=False).to_frame()  # 统计选出来的电影集合里，以标签为单位，每个标签的总数量
-    rct_distribution = obstag_count['tagCount'] / \
-        obstag_count['tagCount'].sum()  # 生成标签流行度的分布
-    obstag_count.to_csv(data_dir + 'generate_data/obstag_count.csv',
-                        header=True)
+    # generate obstag_count data
+    if os.path.exists(data_dir + 'generate_data/obstag_count.csv'):
+        obstag_count = pd.read_csv(
+            data_dir + 'generate_data/obstag_count.csv',
+            index_col='tagid')
+        rct_distribution = obstag_count['tagCount'] / obstag_count['tagCount'].sum()  # 生成标签流行度的分布
+    else:
+        obstag_count: pd.DataFrame = big_movie_tag_ct[
+            big_movie_tag_ct['movieid'].isin(movie_id)].groupby(
+                'tagid')['tagCount'].sum().sort_values(
+                    ascending=False).to_frame()  # 统计选出来的电影集合里，以标签为单位，每个标签的总数量
+        obstag_count.to_csv(data_dir + 'generate_data/obstag_count.csv', header=True)
+        rct_distribution = obstag_count['tagCount'] / obstag_count['tagCount'].sum()  # 生成标签流行度的分布
 
     # generate movie_real_tag_list data
     if os.path.exists(data_dir + 'generate_data/movie_real_tag_list.csv'):
