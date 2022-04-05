@@ -96,4 +96,11 @@ You can see more details in our paper and support material.
 ### Citation
 
 If you reference or use our methodology, code or results in your work, please consider citing:
-
+```
+@article{lyu2022semi,
+  title={A Semi-Synthetic Dataset Generation Framework for Causal Inference in Recommender Systems},
+  author={Lyu, Yan and Dai, Sunhao and Wu, Peng and Dai, Quanyu and Deng, Yuhao and Hu, Wenjie and Dong, Zhenhua and Xu, Jun and Zhu, Shengyu and Zhou, Xiao-Hua},
+  journal={arXiv preprint arXiv:2202.11351},
+  year={2022}
+}
+```
